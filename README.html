@@ -1,0 +1,1848 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Social Media Analytics Lakehouse Platform</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:ital,wght@0,400;0,500;1,400&family=IBM+Plex+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0f0f0f;
+    --surface: #161616;
+    --border: #262626;
+    --text: #e8e8e8;
+    --muted: #8d8d8d;
+    --accent: #f4d03f;
+    --bronze: #cd7f32;
+    --silver: #c0c0c0;
+    --gold: #ffd700;
+    --code-bg: #1a1a1a;
+    --font-sans: 'IBM Plex Sans', sans-serif;
+    --font-mono: 'IBM Plex Mono', monospace;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--font-sans);
+    font-size: 15px;
+    line-height: 1.7;
+    font-weight: 300;
+  }
+
+  /* LAYOUT */
+  .layout { display: flex; min-height: 100vh; }
+
+  /* SIDEBAR */
+  .sidebar {
+    width: 260px;
+    min-width: 260px;
+    background: var(--surface);
+    border-right: 1px solid var(--border);
+    padding: 32px 0;
+    position: sticky;
+    top: 0;
+    height: 100vh;
+    overflow-y: auto;
+    scrollbar-width: thin;
+    scrollbar-color: var(--border) transparent;
+  }
+
+  .sidebar-logo {
+    padding: 0 24px 24px;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 20px;
+  }
+
+  .sidebar-logo .tag {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    color: var(--accent);
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    display: block;
+    margin-bottom: 6px;
+  }
+
+  .sidebar-logo h2 {
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text);
+    line-height: 1.4;
+  }
+
+  .sidebar nav { padding: 0 12px; }
+
+  .sidebar nav a {
+    display: block;
+    padding: 7px 12px;
+    color: var(--muted);
+    text-decoration: none;
+    font-size: 12.5px;
+    font-weight: 400;
+    border-radius: 4px;
+    transition: color 0.15s, background 0.15s;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .sidebar nav a:hover {
+    color: var(--text);
+    background: var(--border);
+  }
+
+  .sidebar nav a.active {
+    color: var(--accent);
+    background: rgba(244,208,63,0.08);
+  }
+
+  .sidebar nav .nav-num {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    color: var(--border);
+    margin-right: 8px;
+  }
+
+  /* MAIN CONTENT */
+  .main {
+    flex: 1;
+    max-width: 860px;
+    padding: 64px 72px;
+    overflow-x: hidden;
+  }
+
+  /* HERO */
+  .hero {
+    margin-bottom: 72px;
+    padding-bottom: 48px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .hero .eyebrow {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 20px;
+    display: block;
+  }
+
+  .hero h1 {
+    font-size: 36px;
+    font-weight: 600;
+    line-height: 1.15;
+    margin-bottom: 20px;
+    letter-spacing: -0.02em;
+  }
+
+  .hero .subtitle {
+    font-size: 15px;
+    color: var(--muted);
+    line-height: 1.8;
+    max-width: 580px;
+    margin-bottom: 28px;
+  }
+
+  .stack-tags { display: flex; flex-wrap: wrap; gap: 8px; }
+
+  .stack-tag {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    padding: 4px 10px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 3px;
+    color: var(--muted);
+    letter-spacing: 0.03em;
+  }
+
+  /* SECTIONS */
+  .section {
+    margin-bottom: 72px;
+    scroll-margin-top: 32px;
+  }
+
+  .section-header {
+    display: flex;
+    align-items: baseline;
+    gap: 14px;
+    margin-bottom: 28px;
+  }
+
+  .section-num {
+    font-family: var(--font-mono);
+    font-size: 12px;
+    color: var(--accent);
+    min-width: 28px;
+  }
+
+  h2 {
+    font-size: 22px;
+    font-weight: 500;
+    letter-spacing: -0.01em;
+  }
+
+  h3 {
+    font-size: 15px;
+    font-weight: 500;
+    color: var(--text);
+    margin-bottom: 12px;
+    margin-top: 32px;
+  }
+
+  h3:first-child { margin-top: 0; }
+
+  p { color: var(--muted); margin-bottom: 16px; }
+  p strong { color: var(--text); font-weight: 500; }
+
+  /* BLOCKQUOTE */
+  blockquote {
+    border-left: 2px solid var(--accent);
+    padding: 14px 20px;
+    margin: 24px 0;
+    background: rgba(244,208,63,0.04);
+    border-radius: 0 4px 4px 0;
+  }
+
+  blockquote p {
+    color: var(--text);
+    margin: 0;
+    font-style: italic;
+    font-size: 14.5px;
+  }
+
+  /* LISTS */
+  ul, ol {
+    padding-left: 20px;
+    margin-bottom: 16px;
+  }
+
+  li {
+    color: var(--muted);
+    margin-bottom: 6px;
+    font-size: 14px;
+  }
+
+  li strong { color: var(--text); }
+
+  /* CODE */
+  code {
+    font-family: var(--font-mono);
+    font-size: 12.5px;
+    background: var(--code-bg);
+    border: 1px solid var(--border);
+    padding: 2px 6px;
+    border-radius: 3px;
+    color: #a8d8a8;
+  }
+
+  pre {
+    background: var(--code-bg);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 20px 22px;
+    overflow-x: auto;
+    margin: 20px 0;
+    scrollbar-width: thin;
+  }
+
+  pre code {
+    background: none;
+    border: none;
+    padding: 0;
+    font-size: 12px;
+    color: #c9d1d9;
+    line-height: 1.7;
+  }
+
+  .lang-python pre code { color: #79c0ff; }
+  .lang-sql pre code { color: #ffa657; }
+  .lang-json pre code { color: #a5d6ff; }
+  .lang-bash pre code { color: #7ee787; }
+
+  .code-block {
+    position: relative;
+    margin: 20px 0;
+  }
+
+  .code-lang {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    color: var(--muted);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    padding: 8px 22px 0;
+    background: var(--code-bg);
+    border: 1px solid var(--border);
+    border-bottom: none;
+    border-radius: 6px 6px 0 0;
+    display: block;
+  }
+
+  .code-block pre {
+    margin: 0;
+    border-radius: 0 0 6px 6px;
+    border-top: 1px solid var(--border);
+  }
+
+  /* TABLES */
+  .table-wrap { overflow-x: auto; margin: 20px 0; }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13.5px;
+  }
+
+  th {
+    text-align: left;
+    padding: 10px 16px;
+    font-weight: 500;
+    font-size: 11px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--muted);
+    border-bottom: 1px solid var(--border);
+    white-space: nowrap;
+  }
+
+  td {
+    padding: 10px 16px;
+    border-bottom: 1px solid rgba(38,38,38,0.6);
+    color: var(--muted);
+    vertical-align: top;
+  }
+
+  td strong { color: var(--text); font-weight: 500; }
+  td code { font-size: 11.5px; }
+
+  tr:last-child td { border-bottom: none; }
+  tr:hover td { background: rgba(255,255,255,0.02); }
+
+  /* MEDALLION CARDS */
+  .medallion-cards {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 1px;
+    background: var(--border);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    overflow: hidden;
+    margin: 24px 0;
+  }
+
+  .medal-card {
+    background: var(--surface);
+    padding: 24px 20px;
+  }
+
+  .medal-card .medal-icon {
+    font-size: 22px;
+    margin-bottom: 10px;
+    display: block;
+  }
+
+  .medal-card .medal-name {
+    font-size: 13px;
+    font-weight: 500;
+    margin-bottom: 6px;
+  }
+
+  .medal-card .medal-rule {
+    font-family: var(--font-mono);
+    font-size: 10.5px;
+    color: var(--accent);
+    margin-bottom: 10px;
+    display: block;
+  }
+
+  .medal-card p {
+    font-size: 12.5px;
+    margin: 0;
+    line-height: 1.6;
+  }
+
+  /* TECH STACK CARDS */
+  .tech-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin: 20px 0;
+  }
+
+  .tech-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 20px;
+  }
+
+  .tech-card h4 {
+    font-size: 13px;
+    font-weight: 500;
+    margin-bottom: 8px;
+    color: var(--text);
+  }
+
+  .tech-card .tech-what {
+    font-size: 12px;
+    color: var(--muted);
+    margin-bottom: 8px;
+    line-height: 1.5;
+  }
+
+  .tech-card ul {
+    margin: 0;
+    padding-left: 14px;
+  }
+
+  .tech-card li {
+    font-size: 12px;
+    margin-bottom: 3px;
+  }
+
+  /* PIPELINE STEPS */
+  .steps { margin: 20px 0; }
+
+  .step {
+    display: flex;
+    gap: 16px;
+    margin-bottom: 20px;
+    position: relative;
+  }
+
+  .step::before {
+    content: '';
+    position: absolute;
+    left: 19px;
+    top: 38px;
+    width: 1px;
+    height: calc(100% + 4px);
+    background: var(--border);
+  }
+
+  .step:last-child::before { display: none; }
+
+  .step-num {
+    width: 38px;
+    height: 38px;
+    min-width: 38px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--accent);
+    font-weight: 500;
+  }
+
+  .step-content { flex: 1; padding-top: 8px; }
+
+  .step-title {
+    font-size: 13px;
+    font-weight: 500;
+    margin-bottom: 8px;
+    color: var(--text);
+  }
+
+  .step-title code { font-size: 11.5px; }
+
+  .step-content ol {
+    margin: 0;
+    padding-left: 16px;
+  }
+
+  .step-content li { font-size: 13px; }
+
+  /* INTERVIEW Q's */
+  .interview-group { margin-bottom: 28px; }
+
+  .interview-group h3 {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 12px;
+    margin-top: 24px;
+  }
+
+  .q-list { list-style: none; padding: 0; }
+
+  .q-list li {
+    padding: 10px 14px;
+    background: var(--surface);
+    border-left: 2px solid var(--border);
+    margin-bottom: 6px;
+    font-size: 13.5px;
+    color: var(--text);
+    border-radius: 0 4px 4px 0;
+    font-style: italic;
+    transition: border-color 0.15s;
+  }
+
+  .q-list li:hover { border-color: var(--accent); }
+
+  /* GLOSSARY */
+  .glossary-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    margin: 20px 0;
+  }
+
+  .glossary-item {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 5px;
+    padding: 14px 16px;
+  }
+
+  .glossary-term {
+    font-family: var(--font-mono);
+    font-size: 11.5px;
+    color: var(--accent);
+    font-weight: 500;
+    margin-bottom: 5px;
+    display: block;
+  }
+
+  .glossary-def {
+    font-size: 12.5px;
+    color: var(--muted);
+    line-height: 1.5;
+  }
+
+  /* DIVIDER */
+  .divider {
+    height: 1px;
+    background: var(--border);
+    margin: 48px 0;
+  }
+
+  /* FOOTER */
+  footer {
+    margin-top: 80px;
+    padding-top: 28px;
+    border-top: 1px solid var(--border);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  footer .name {
+    font-weight: 500;
+    font-size: 14px;
+  }
+
+  footer .links { display: flex; gap: 20px; }
+
+  footer a {
+    font-family: var(--font-mono);
+    font-size: 12px;
+    color: var(--muted);
+    text-decoration: none;
+    letter-spacing: 0.03em;
+    transition: color 0.15s;
+  }
+
+  footer a:hover { color: var(--accent); }
+
+  /* ARCH DIAGRAM */
+  .arch {
+    background: var(--code-bg);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    overflow: hidden;
+    margin: 24px 0;
+  }
+
+  .arch-layer {
+    padding: 16px 22px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: flex-start;
+    gap: 16px;
+  }
+
+  .arch-layer:last-child { border-bottom: none; }
+
+  .arch-dot {
+    width: 10px;
+    height: 10px;
+    min-width: 10px;
+    border-radius: 50%;
+    margin-top: 5px;
+  }
+
+  .arch-layer-name {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    min-width: 120px;
+    margin-top: 2px;
+  }
+
+  .arch-desc {
+    font-size: 13px;
+    color: var(--muted);
+  }
+
+  .arch-desc .tables {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--border);
+    margin-top: 4px;
+  }
+
+  /* SCD comparison */
+  .scd-compare {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin: 20px 0;
+  }
+
+  .scd-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 20px;
+  }
+
+  .scd-card h4 {
+    font-size: 12px;
+    font-weight: 500;
+    font-family: var(--font-mono);
+    color: var(--accent);
+    letter-spacing: 0.08em;
+    margin-bottom: 10px;
+  }
+
+  .scd-card p {
+    font-size: 13px;
+    margin-bottom: 8px;
+  }
+
+  .scd-card .used-for {
+    font-size: 11.5px;
+    font-family: var(--font-mono);
+    color: var(--muted);
+    background: var(--code-bg);
+    padding: 6px 10px;
+    border-radius: 3px;
+    display: inline-block;
+  }
+
+  /* SCROLLBAR */
+  ::-webkit-scrollbar { width: 6px; height: 6px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+
+  /* RESPONSIVE */
+  @media (max-width: 900px) {
+    .sidebar { display: none; }
+    .main { padding: 40px 28px; }
+    .tech-grid { grid-template-columns: 1fr; }
+    .glossary-grid { grid-template-columns: 1fr; }
+    .scd-compare { grid-template-columns: 1fr; }
+    .medallion-cards { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<div class="layout">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="sidebar-logo">
+      <span class="tag">Data Engineering</span>
+      <h2>Social Media Analytics Lakehouse</h2>
+    </div>
+    <nav>
+      <a href="#overview"><span class="nav-num">01</span>Project Overview</a>
+      <a href="#why"><span class="nav-num">02</span>Why This Exists</a>
+      <a href="#architecture"><span class="nav-num">03</span>Architecture</a>
+      <a href="#techstack"><span class="nav-num">04</span>Tech Stack</a>
+      <a href="#sources"><span class="nav-num">05</span>Data Sources</a>
+      <a href="#medallion"><span class="nav-num">06</span>Medallion Architecture</a>
+      <a href="#dq"><span class="nav-num">07</span>Data Quality</a>
+      <a href="#starschema"><span class="nav-num">08</span>Star Schema</a>
+      <a href="#scd"><span class="nav-num">09</span>SCD Types</a>
+      <a href="#incremental"><span class="nav-num">10</span>Incremental Processing</a>
+      <a href="#orchestration"><span class="nav-num">11</span>Orchestration</a>
+      <a href="#structure"><span class="nav-num">12</span>Folder Structure</a>
+      <a href="#flow"><span class="nav-num">13</span>Pipeline Flow</a>
+      <a href="#pyspark"><span class="nav-num">14</span>PySpark Concepts</a>
+      <a href="#queries"><span class="nav-num">15</span>Analytics Queries</a>
+      <a href="#howtorun"><span class="nav-num">16</span>How to Run</a>
+      <a href="#interview"><span class="nav-num">17</span>Interview Questions</a>
+      <a href="#glossary"><span class="nav-num">18</span>Glossary</a>
+    </nav>
+  </aside>
+
+  <!-- MAIN -->
+  <main class="main">
+
+    <!-- HERO -->
+    <div class="hero">
+      <span class="eyebrow">Project Documentation</span>
+      <h1>Social Media Analytics<br>Lakehouse Platform</h1>
+      <p class="subtitle">A production-grade, end-to-end data engineering platform that ingests multi-source social media data (YouTube + Reddit), validates quality, transforms through a Medallion Architecture, and serves analytics via a Star Schema data warehouse — fully orchestrated with incremental scheduling on Databricks.</p>
+      <div class="stack-tags">
+        <span class="stack-tag">Python</span>
+        <span class="stack-tag">PySpark</span>
+        <span class="stack-tag">Databricks</span>
+        <span class="stack-tag">Delta Lake</span>
+        <span class="stack-tag">AWS S3</span>
+        <span class="stack-tag">Spark SQL</span>
+      </div>
+    </div>
+
+    <!-- 01 PROJECT OVERVIEW -->
+    <section class="section" id="overview">
+      <div class="section-header">
+        <span class="section-num">01</span>
+        <h2>Project Overview</h2>
+      </div>
+
+      <blockquote>
+        <p>"Which YouTube channels and Reddit communities are gaining traction, and what type of content drives the most engagement — across both platforms simultaneously?"</p>
+      </blockquote>
+
+      <p>To answer this, the platform:</p>
+      <ul>
+        <li><strong>Ingests</strong> raw data daily from the YouTube Data API v3 and Reddit API (via PRAW)</li>
+        <li><strong>Stores</strong> raw data as-is in a Bronze Delta Lake layer</li>
+        <li><strong>Validates</strong> data quality before any transformation happens</li>
+        <li><strong>Cleans and enriches</strong> data in a Silver layer using PySpark</li>
+        <li><strong>Models</strong> the data into a Star Schema in the Gold layer for analytical querying</li>
+        <li><strong>Schedules</strong> the entire pipeline to run daily using Databricks Jobs</li>
+        <li><strong>Tracks</strong> incremental changes so re-runs never create duplicates</li>
+      </ul>
+
+      <p>This is not a tutorial project. Every design decision mirrors what data engineers do at companies like Swiggy, Zepto, Meesho, and PhonePe.</p>
+    </section>
+
+    <!-- 02 WHY -->
+    <section class="section" id="why">
+      <div class="section-header">
+        <span class="section-num">02</span>
+        <h2>Why This Project Exists</h2>
+      </div>
+
+      <h3>The Problem with Isolated Pipeline Projects</h3>
+      <p>Most fresher DE portfolios have 4–5 disconnected mini-projects — one pipeline for YouTube, one for Reddit, a standalone data warehouse, a quality checker, and a scheduler. This looks like tutorials. It does not demonstrate that you can <strong>architect a system</strong>.</p>
+
+      <h3>What This Project Demonstrates Instead</h3>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Skill</th><th>How It's Demonstrated</th></tr></thead>
+          <tbody>
+            <tr><td><strong>API Ingestion</strong></td><td>YouTube + Reddit APIs with pagination and rate limiting</td></tr>
+            <tr><td><strong>Raw Storage Design</strong></td><td>Bronze Delta tables with schema-on-read</td></tr>
+            <tr><td><strong>Data Quality Engineering</strong></td><td>Reusable DQ framework across multiple sources</td></tr>
+            <tr><td><strong>PySpark Transformations</strong></td><td>Flattening JSON, window functions, aggregations</td></tr>
+            <tr><td><strong>Dimensional Modeling</strong></td><td>Star Schema with fact and dimension tables</td></tr>
+            <tr><td><strong>SCD Management</strong></td><td>Type 1 and Type 2 on dimension tables</td></tr>
+            <tr><td><strong>Incremental Processing</strong></td><td>Watermark-based change detection</td></tr>
+            <tr><td><strong>Idempotency</strong></td><td>Re-runnable pipelines with no duplicate data</td></tr>
+            <tr><td><strong>Orchestration</strong></td><td>Databricks Jobs with dependency management</td></tr>
+            <tr><td><strong>Cloud Storage</strong></td><td>AWS S3 as the underlying storage layer</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- 03 ARCHITECTURE -->
+    <section class="section" id="architecture">
+      <div class="section-header">
+        <span class="section-num">03</span>
+        <h2>High-Level Architecture</h2>
+      </div>
+
+      <div class="arch">
+        <div class="arch-layer">
+          <div class="arch-dot" style="background:#4a9eff"></div>
+          <div class="arch-layer-name" style="color:#4a9eff">Data Sources</div>
+          <div class="arch-desc">
+            YouTube Data API v3 (REST/JSON) &nbsp;+&nbsp; Reddit API via PRAW (REST/JSON)
+            <div class="tables">Authentication → Pagination → Rate Limiting → Serialization</div>
+          </div>
+        </div>
+        <div class="arch-layer">
+          <div class="arch-dot" style="background:#cd7f32"></div>
+          <div class="arch-layer-name" style="color:#cd7f32">Bronze Layer</div>
+          <div class="arch-desc">
+            Raw, unmodified data. Append-only. Schema-on-read. Partitioned by <code>ingestion_date</code>.
+            <div class="tables">raw_youtube_videos · raw_youtube_channels · raw_reddit_posts · raw_reddit_comments</div>
+          </div>
+        </div>
+        <div class="arch-layer">
+          <div class="arch-dot" style="background:#e05252"></div>
+          <div class="arch-layer-name" style="color:#e05252">DQ Layer</div>
+          <div class="arch-desc">
+            Null checks · Duplicate detection · Schema validation · Freshness check. Logs to <code>quality_metrics</code>. Pipeline halts on critical failure.
+          </div>
+        </div>
+        <div class="arch-layer">
+          <div class="arch-dot" style="background:#c0c0c0"></div>
+          <div class="arch-layer-name" style="color:#c0c0c0">Silver Layer</div>
+          <div class="arch-desc">
+            Cleaned, flattened, type-cast, deduplicated, enriched. Standardized timestamps (UTC).
+            <div class="tables">yt_videos_clean · yt_channels_clean · reddit_posts_clean · reddit_comments_clean</div>
+          </div>
+        </div>
+        <div class="arch-layer">
+          <div class="arch-dot" style="background:#ffd700"></div>
+          <div class="arch-layer-name" style="color:#ffd700">Gold Layer</div>
+          <div class="arch-desc">
+            Star Schema. Fact + Dimension tables. SCD Type 1 &amp; 2. Analytics-ready.
+            <div class="tables">fact_video_performance · fact_post_engagement · dim_channel · dim_subreddit · dim_date · dim_topic</div>
+          </div>
+        </div>
+        <div class="arch-layer">
+          <div class="arch-dot" style="background:#a8d8a8"></div>
+          <div class="arch-layer-name" style="color:#a8d8a8">Analytics</div>
+          <div class="arch-desc">
+            SQL queries for engagement metrics, trending topics, cross-platform analysis, and channel growth over time.
+          </div>
+        </div>
+      </div>
+
+      <p style="font-size:13px; font-style:italic;">Databricks Jobs orchestrate every layer above, running daily at 6:00 AM UTC.</p>
+    </section>
+
+    <!-- 04 TECH STACK -->
+    <section class="section" id="techstack">
+      <div class="section-header">
+        <span class="section-num">04</span>
+        <h2>Tech Stack — What, Why, and How</h2>
+      </div>
+
+      <div class="tech-grid">
+        <div class="tech-card">
+          <h4>Python</h4>
+          <p class="tech-what">General-purpose language. Used for API calls, authentication, pagination handling, and gluing pipeline stages together.</p>
+          <ul>
+            <li><code>requests</code> — HTTP calls</li>
+            <li><code>praw</code> — Reddit SDK</li>
+            <li><code>google-api-python-client</code> — YouTube SDK</li>
+            <li><code>pyyaml</code>, <code>logging</code></li>
+          </ul>
+        </div>
+        <div class="tech-card">
+          <h4>Apache Spark / PySpark</h4>
+          <p class="tech-what">Distributed processing engine. Reads Delta Lake data in parallel across a cluster, applies transformations, writes results back — fast.</p>
+          <ul>
+            <li><code>DataFrame</code> API for transformations</li>
+            <li><code>Window</code> functions for ranking</li>
+            <li><code>groupBy</code> + <code>agg</code> for aggregations</li>
+            <li><code>explode</code> for nested JSON arrays</li>
+          </ul>
+        </div>
+        <div class="tech-card">
+          <h4>Databricks</h4>
+          <p class="tech-what">Managed Spark platform. Provides clusters, notebooks, Delta Lake support, and job scheduling in one place.</p>
+          <ul>
+            <li>Notebooks for development</li>
+            <li>Jobs for pipeline scheduling</li>
+            <li>DBFS + S3 mount for storage</li>
+            <li>Widgets for parameterizing notebooks</li>
+          </ul>
+        </div>
+        <div class="tech-card">
+          <h4>Delta Lake</h4>
+          <p class="tech-what">Storage layer adding ACID transactions, time travel, and schema enforcement on top of Parquet files in S3.</p>
+          <ul>
+            <li><code>MERGE INTO</code> for upserts</li>
+            <li><code>INSERT OVERWRITE</code> for refreshes</li>
+            <li><code>OPTIMIZE</code> for compacting files</li>
+            <li><code>DESCRIBE HISTORY</code> for auditing</li>
+          </ul>
+        </div>
+        <div class="tech-card">
+          <h4>AWS S3</h4>
+          <p class="tech-what">Object storage. Delta Lake tables are physically Parquet files in S3. Everything else is compute on top of it.</p>
+          <ul>
+            <li><code>s3://…/bronze/</code></li>
+            <li><code>s3://…/silver/</code></li>
+            <li><code>s3://…/gold/</code></li>
+            <li><code>s3://…/quality_metrics/</code></li>
+          </ul>
+        </div>
+        <div class="tech-card">
+          <h4>SQL (Spark SQL)</h4>
+          <p class="tech-what">Gold layer transformations and all analytical queries are written in SQL — intentional, since BI tools and stakeholders speak SQL, not PySpark.</p>
+          <ul>
+            <li>DDL for Delta table creation</li>
+            <li>Analytical business metric queries</li>
+            <li>SCD MERGE statements</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- 05 DATA SOURCES -->
+    <section class="section" id="sources">
+      <div class="section-header">
+        <span class="section-num">05</span>
+        <h2>Data Sources</h2>
+      </div>
+
+      <h3>YouTube Data API v3</h3>
+      <p><strong>Authentication:</strong> API Key (free, via Google Cloud Console) &nbsp;·&nbsp; <strong>Rate limit:</strong> 10,000 quota units/day</p>
+
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Endpoint</th><th>Data</th><th>Quota Cost</th></tr></thead>
+          <tbody>
+            <tr><td><code>channels.list</code></td><td>Channel metadata (name, subscribers, country)</td><td>1 unit</td></tr>
+            <tr><td><code>videos.list</code></td><td>Video stats (views, likes, comments, duration)</td><td>1 unit</td></tr>
+            <tr><td><code>search.list</code></td><td>Search for videos by keyword or channel</td><td>100 units</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <p><strong>Challenge:</strong> The response is deeply nested. <code>snippet</code>, <code>statistics</code>, <code>contentDetails</code> are nested objects inside each <code>item</code>. PySpark's <code>explode()</code> and <code>getItem()</code> are used to flatten this.</p>
+
+      <div class="code-block">
+        <span class="code-lang">json — raw response shape (videos.list)</span>
+        <pre><code>{
+  "kind": "youtube#videoListResponse",
+  "items": [
+    {
+      "id": "dQw4w9WgXcQ",
+      "snippet": {
+        "publishedAt": "2009-10-25T06:57:33Z",
+        "channelId": "UCuAXFkgsw1L7xaCfnd5JJOw",
+        "title": "Rick Astley - Never Gonna Give You Up",
+        "tags": ["rick astley", "pop"]
+      },
+      "statistics": {
+        "viewCount": "1400000000",
+        "likeCount": "15000000",
+        "commentCount": "2000000"
+      }
+    }
+  ]
+}</code></pre>
+      </div>
+
+      <h3>Reddit API (via PRAW)</h3>
+      <p><strong>Authentication:</strong> OAuth2 (client_id + client_secret, free via reddit.com/prefs/apps) &nbsp;·&nbsp; <strong>Rate limit:</strong> 60 requests/minute</p>
+
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Endpoint</th><th>Data</th></tr></thead>
+          <tbody>
+            <tr><td><code>subreddit.hot()</code></td><td>Top posts right now</td></tr>
+            <tr><td><code>subreddit.top(time_filter='day')</code></td><td>Top posts of the day</td></tr>
+            <tr><td><code>submission.comments</code></td><td>Comments on a post</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <p><strong>Challenge:</strong> <code>awards</code> is a nested array needing <code>explode()</code>. <code>created_utc</code> is a Unix timestamp requiring conversion to proper datetime.</p>
+
+      <div class="code-block">
+        <span class="code-lang">json — raw response shape</span>
+        <pre><code>{
+  "id": "abc123",
+  "title": "This AI tool is incredible",
+  "subreddit": "technology",
+  "score": 45000,
+  "upvote_ratio": 0.97,
+  "num_comments": 1200,
+  "created_utc": 1704067200,
+  "flair_text": "AI",
+  "awards": [
+    {"name": "Gold", "count": 2},
+    {"name": "Silver", "count": 5}
+  ]
+}</code></pre>
+      </div>
+    </section>
+
+    <!-- 06 MEDALLION -->
+    <section class="section" id="medallion">
+      <div class="section-header">
+        <span class="section-num">06</span>
+        <h2>Medallion Architecture Deep Dive</h2>
+      </div>
+
+      <p>The Medallion Architecture is an industry-standard pattern for organizing data lakes. Three layers named after metals represent increasing data quality.</p>
+
+      <div class="medallion-cards">
+        <div class="medal-card">
+          <span class="medal-icon">🥉</span>
+          <div class="medal-name" style="color:var(--bronze)">Bronze — Raw Vault</div>
+          <span class="medal-rule">Write as-is. Never transform. Never delete.</span>
+          <p>Full audit trail. Safe to re-process Silver if transformations have bugs. APIs change schemas — Bronze preserves the original forever.</p>
+        </div>
+        <div class="medal-card">
+          <span class="medal-icon">🥈</span>
+          <div class="medal-name" style="color:var(--silver)">Silver — Cleaned & Conformed</div>
+          <span class="medal-rule">One row per entity. Typed. Deduplicated. Enriched.</span>
+          <p>Parse JSON. Cast types. Flatten nested structures. Standardize timestamps to UTC. Add derived columns like <code>engagement_rate</code>.</p>
+        </div>
+        <div class="medal-card">
+          <span class="medal-icon">🥇</span>
+          <div class="medal-name" style="color:var(--gold)">Gold — Analytics-Ready</div>
+          <span class="medal-rule">Modeled for query performance. Business-friendly.</span>
+          <p>Star Schema with fact and dimension tables. SCD Type 1 &amp; 2. Optimized for BI tools and SQL analytics.</p>
+        </div>
+      </div>
+
+      <h3>Bronze Schema Example</h3>
+      <div class="code-block">
+        <span class="code-lang">schema — raw_youtube_videos</span>
+        <pre><code>root
+ |-- raw_payload: string        ← entire JSON as a string
+ |-- video_id: string           ← extracted for partitioning only
+ |-- source: string             ← "youtube"
+ |-- ingestion_timestamp: timestamp
+ |-- ingestion_date: date       ← PARTITION BY this</code></pre>
+      </div>
+
+      <h3>Silver Transformations Applied</h3>
+      <ol>
+        <li>Parse <code>raw_payload</code> JSON string into proper columns</li>
+        <li>Cast strings to correct types (YouTube API returns view counts as strings)</li>
+        <li>Flatten nested structures: <code>snippet.title</code> → <code>title</code></li>
+        <li>Standardize timestamps to UTC</li>
+        <li>Add derived columns: <code>engagement_rate = (likes + comments) / views * 100</code></li>
+        <li>Deduplicate using <code>ROW_NUMBER()</code> window on <code>(id, ingestion_date)</code></li>
+      </ol>
+    </section>
+
+    <!-- 07 DQ -->
+    <section class="section" id="dq">
+      <div class="section-header">
+        <span class="section-num">07</span>
+        <h2>Data Quality Framework</h2>
+      </div>
+
+      <p>A <strong>reusable Python class</strong> that can be pointed at any Delta table. Not hardcoded for YouTube or Reddit — it works on any dataset.</p>
+
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Check</th><th>What It Validates</th><th>Severity</th></tr></thead>
+          <tbody>
+            <tr><td><strong>Null Check</strong></td><td>Critical columns have no nulls</td><td>Critical</td></tr>
+            <tr><td><strong>Duplicate Check</strong></td><td>No duplicate primary keys</td><td>Critical</td></tr>
+            <tr><td><strong>Schema Check</strong></td><td>All expected columns are present</td><td>Critical</td></tr>
+            <tr><td><strong>Freshness Check</strong></td><td>Data for today's date exists</td><td>Warning</td></tr>
+            <tr><td><strong>Range Check</strong></td><td>Numeric values within expected bounds</td><td>Warning</td></tr>
+            <tr><td><strong>Referential Check</strong></td><td>Foreign keys exist in dimension tables</td><td>Warning</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="code-block">
+        <span class="code-lang">python — DataQualityChecker class (pseudocode)</span>
+        <pre><code>class DataQualityChecker:
+    def __init__(self, spark, table_name, config):
+        self.spark = spark
+        self.table_name = table_name
+        self.config = config  # which checks to run, which columns are critical
+
+    def check_nulls(self, df, critical_columns):
+        # For each critical column, count nulls
+        # If null_count > 0 → FAIL
+
+    def check_duplicates(self, df, primary_key_columns):
+        # Count rows where ROW_NUMBER() > 1 partitioned by PK
+        # If duplicate_count > 0 → FAIL
+
+    def check_freshness(self, df, date_column, expected_date):
+        # Filter df where date_column = today
+        # If count = 0 → WARN
+
+    def run_all_checks(self, df):
+        # Runs all checks, collects results
+        # Writes results to quality_metrics Delta table
+        # Returns: passed (bool), report (dict)</code></pre>
+      </div>
+
+      <h3>Pipeline Behavior on Failure</h3>
+      <ul>
+        <li><strong>Critical check fails</strong> → Pipeline stops. No data moves to Silver. Alert sent.</li>
+        <li><strong>Warning check fails</strong> → Pipeline continues. Warning logged. Data moves with a <code>dq_warning</code> flag.</li>
+        <li><strong>All checks pass</strong> → Pipeline proceeds normally.</li>
+      </ul>
+    </section>
+
+    <!-- 08 STAR SCHEMA -->
+    <section class="section" id="starschema">
+      <div class="section-header">
+        <span class="section-num">08</span>
+        <h2>Star Schema — Gold Layer Modeling</h2>
+      </div>
+
+      <p>A Star Schema organizes data into <strong>fact tables</strong> (measurable events, large) and <strong>dimension tables</strong> (descriptive context, smaller). One fact table in the center, dimension tables radiating outward like points of a star.</p>
+
+      <h3>Why Star Schema over Silver tables?</h3>
+      <ol>
+        <li><strong>Query performance:</strong> Analytical queries are 10× faster than normalized tables</li>
+        <li><strong>Simplicity:</strong> Business users write simple SQL — no complex joins needed</li>
+        <li><strong>Aggregation-friendly:</strong> BI tools like Tableau/Power BI work natively with Star Schemas</li>
+        <li><strong>Industry standard:</strong> Every data warehouse (Redshift, Snowflake, BigQuery) uses this pattern</li>
+      </ol>
+
+      <h3>Fact Tables</h3>
+      <div class="code-block">
+        <span class="code-lang">sql — fact_video_performance</span>
+        <pre><code>fact_video_performance
+├── video_sk          (surrogate key, PK)
+├── channel_sk        (FK → dim_channel)
+├── date_sk           (FK → dim_date)
+├── topic_sk          (FK → dim_topic)
+├── view_count        (metric)
+├── like_count        (metric)
+├── comment_count     (metric)
+├── engagement_rate   (derived: (likes+comments)/views*100)
+├── view_growth_1d    (window function: views today - yesterday)
+├── view_growth_7d    (window function: 7-day rolling growth)
+└── snapshot_date     (partition column)</code></pre>
+      </div>
+
+      <div class="code-block">
+        <span class="code-lang">sql — fact_post_engagement</span>
+        <pre><code>fact_post_engagement
+├── post_sk           (surrogate key, PK)
+├── subreddit_sk      (FK → dim_subreddit)
+├── date_sk           (FK → dim_date)
+├── topic_sk          (FK → dim_topic)
+├── upvote_count      (metric)
+├── comment_count     (metric)
+├── award_count       (metric)
+├── upvote_ratio      (metric: upvotes / total votes)
+├── engagement_score  (derived: custom formula)
+├── rank_in_subreddit (window function: rank by upvotes within subreddit)
+└── snapshot_date     (partition column)</code></pre>
+      </div>
+
+      <h3>Dimension Tables</h3>
+      <div class="code-block">
+        <span class="code-lang">sql — dim_channel (SCD Type 2)</span>
+        <pre><code>dim_channel
+├── channel_sk        (surrogate key, PK)
+├── channel_id        (natural key from YouTube API)
+├── channel_name
+├── country
+├── subscriber_count
+├── total_video_count
+├── category
+├── is_current        (TRUE for the latest version)
+├── effective_from    (when this version became active)
+└── effective_to      (when superseded; NULL if current)</code></pre>
+      </div>
+
+      <div class="code-block">
+        <span class="code-lang">sql — dim_date</span>
+        <pre><code>dim_date
+├── date_sk           (integer: 20240101, PK)
+├── full_date
+├── day_of_week       (Monday, Tuesday...)
+├── week_of_year
+├── month_name
+├── quarter
+├── year
+└── is_weekend        (boolean)</code></pre>
+      </div>
+    </section>
+
+    <!-- 09 SCD -->
+    <section class="section" id="scd">
+      <div class="section-header">
+        <span class="section-num">09</span>
+        <h2>Slowly Changing Dimensions (SCD)</h2>
+      </div>
+
+      <p>Dimensions change slowly — a YouTube channel's subscriber count changes every day. The question is: <strong>do you care about the history?</strong></p>
+
+      <div class="scd-compare">
+        <div class="scd-card">
+          <h4>SCD TYPE 1 — OVERWRITE</h4>
+          <p>When a value changes, just overwrite the old value. No history kept. Simple <code>MERGE</code> or <code>UPDATE</code>.</p>
+          <span class="used-for">Used for: dim_subreddit</span>
+        </div>
+        <div class="scd-card">
+          <h4>SCD TYPE 2 — KEEP HISTORY</h4>
+          <p>When a value changes, expire the old row and insert a new one. Lets you query historical state at any point in time.</p>
+          <span class="used-for">Used for: dim_channel</span>
+        </div>
+      </div>
+
+      <h3>SCD Type 2 — Before and After</h3>
+      <div class="code-block">
+        <span class="code-lang">before channel reaches 1M subscribers</span>
+        <pre><code>channel_sk | channel_id | subscribers | is_current | effective_from | effective_to
+100        | UC123      | 500,000     | TRUE       | 2024-01-01     | NULL</code></pre>
+      </div>
+      <div class="code-block">
+        <span class="code-lang">after — old row expired, new row inserted</span>
+        <pre><code>channel_sk | channel_id | subscribers | is_current | effective_from | effective_to
+100        | UC123      | 500,000     | FALSE      | 2024-01-01     | 2024-06-15
+101        | UC123      | 1,000,000   | TRUE       | 2024-06-15     | NULL</code></pre>
+      </div>
+
+      <div class="code-block">
+        <span class="code-lang">sql — SCD Type 2 implementation with Delta MERGE</span>
+        <pre><code>-- Step 1: Expire old rows that have changed
+MERGE INTO dim_channel AS target
+USING new_channel_data AS source
+ON target.channel_id = source.channel_id
+   AND target.is_current = TRUE
+   AND target.subscriber_count != source.subscriber_count
+WHEN MATCHED THEN UPDATE SET
+    is_current = FALSE,
+    effective_to = current_date()
+
+-- Step 2: Insert new rows for changed + new channels
+INSERT INTO dim_channel
+SELECT
+    uuid() as channel_sk,
+    channel_id, channel_name, subscriber_count,
+    TRUE as is_current,
+    current_date() as effective_from,
+    NULL as effective_to
+FROM new_channel_data
+WHERE channel_id IN (changed_ids) OR channel_id NOT IN (existing_ids)</code></pre>
+      </div>
+    </section>
+
+    <!-- 10 INCREMENTAL -->
+    <section class="section" id="incremental">
+      <div class="section-header">
+        <span class="section-num">10</span>
+        <h2>Incremental Processing &amp; Idempotency</h2>
+      </div>
+
+      <h3>The Problem with Full Loads</h3>
+      <p>If you ingest 100,000 Reddit posts daily by re-reading everything, by Day 30 you're reading 3 million records to get 100,000 new ones. This is wasteful and slow.</p>
+
+      <h3>Watermarking</h3>
+      <p>A <strong>watermark</strong> is a bookmark — <em>"I last processed data up to this point."</em> Stored in a control table:</p>
+
+      <div class="code-block">
+        <span class="code-lang">pipeline_control table</span>
+        <pre><code>pipeline_control
+├── source_name       (youtube_videos / reddit_posts)
+├── last_processed_at (timestamp of last successful run)
+└── last_run_status   (SUCCESS / FAILED)</code></pre>
+      </div>
+
+      <p>On each run: read <code>last_processed_at</code> → query Bronze WHERE <code>ingestion_timestamp > last_processed_at</code> → process only new records → update watermark on success.</p>
+
+      <h3>Idempotency</h3>
+      <p><strong>Definition:</strong> Running the pipeline twice produces the same result as running it once. Critical because Databricks Jobs retry on failure.</p>
+
+      <ul>
+        <li>Silver writes use <code>INSERT OVERWRITE</code> partitioned by <code>ingestion_date</code> — re-running for the same date just overwrites</li>
+        <li>Gold fact tables use <code>MERGE INTO</code> on surrogate key — inserting the same row twice just updates in place</li>
+        <li>DQ checks write with <code>MERGE</code> on <code>(check_id, run_timestamp)</code></li>
+      </ul>
+    </section>
+
+    <!-- 11 ORCHESTRATION -->
+    <section class="section" id="orchestration">
+      <div class="section-header">
+        <span class="section-num">11</span>
+        <h2>Orchestration with Databricks Jobs</h2>
+      </div>
+
+      <p>A Databricks Job is a scheduled execution of notebooks with dependencies between them.</p>
+
+      <div class="code-block">
+        <span class="code-lang">job dag — execution order</span>
+        <pre><code>[ingest_youtube]  [ingest_reddit]
+        │                │
+        └────────┬────────┘
+                 ▼
+         [bronze_writer]
+                 │
+                 ▼
+         [dq_validator]
+                 │
+         ┌───────┴───────┐
+         ▼               ▼
+  [silver_youtube] [silver_reddit]
+         │               │
+         └───────┬───────┘
+                 ▼
+         [gold_dimensions]
+                 │
+                 ▼
+          [gold_facts]
+                 │
+                 ▼
+        [pipeline_control_update]</code></pre>
+      </div>
+
+      <h3>Schedule &amp; Retry Policy</h3>
+      <ul>
+        <li><strong>Cron:</strong> <code>0 6 * * *</code> — runs every day at 6:00 AM UTC</li>
+        <li><strong>Max retries:</strong> 2 &nbsp;·&nbsp; <strong>Retry interval:</strong> 10 minutes</li>
+        <li><strong>On final failure:</strong> email alert triggered</li>
+      </ul>
+    </section>
+
+    <!-- 12 FOLDER STRUCTURE -->
+    <section class="section" id="structure">
+      <div class="section-header">
+        <span class="section-num">12</span>
+        <h2>Folder Structure</h2>
+      </div>
+
+      <div class="code-block">
+        <span class="code-lang">project root</span>
+        <pre><code>social-analytics-lakehouse/
+│
+├── README.md
+├── config/
+│   ├── config.yaml               ← Paths, API settings, table names
+│   └── .env.example              ← Template for secrets (never commit .env)
+│
+├── ingestion/
+│   ├── youtube_api_ingest.py     ← YouTube API calls, pagination
+│   └── reddit_api_ingest.py      ← Reddit PRAW calls, rate limiting
+│
+├── bronze/
+│   └── raw_loader.py             ← Writes raw JSON to Bronze Delta tables
+│
+├── quality/
+│   ├── dq_checker.py             ← DataQualityChecker class
+│   └── dq_config.yaml            ← Which checks run on which tables
+│
+├── silver/
+│   ├── youtube_transform.py      ← Flatten, clean, enrich YouTube data
+│   └── reddit_transform.py       ← Flatten, clean, enrich Reddit data
+│
+├── gold/
+│   ├── dim_date_generator.py     ← Pre-populate dim_date
+│   ├── dim_channel.py            ← SCD Type 2 logic
+│   ├── dim_subreddit.py          ← SCD Type 1 logic
+│   ├── dim_topic.py              ← Topic extraction and loading
+│   ├── fact_video_performance.py ← Build fact table from Silver
+│   └── fact_post_engagement.py   ← Build fact table from Silver
+│
+├── orchestration/
+│   ├── pipeline_runner.py        ← Main orchestrator, watermark logic
+│   └── pipeline_control.py      ← Read/write pipeline_control table
+│
+├── notebooks/                    ← Databricks notebooks (mirror of scripts)
+│   ├── 01_ingest_youtube.ipynb
+│   ├── 02_ingest_reddit.ipynb
+│   ├── 03_bronze_loader.ipynb
+│   ├── 04_dq_validation.ipynb
+│   ├── 05_silver_youtube.ipynb
+│   ├── 06_silver_reddit.ipynb
+│   ├── 07_gold_dimensions.ipynb
+│   ├── 08_gold_facts.ipynb
+│   └── 09_analytics_queries.ipynb
+│
+├── sql/
+│   ├── create_tables.sql         ← DDL for all Delta tables
+│   └── analytics_queries.sql     ← Business metrics queries
+│
+├── tests/
+│   ├── test_dq_checker.py        ← Unit tests for DQ framework
+│   └── test_transforms.py        ← Unit tests for Silver transforms
+│
+└── requirements.txt</code></pre>
+      </div>
+    </section>
+
+    <!-- 13 PIPELINE FLOW -->
+    <section class="section" id="flow">
+      <div class="section-header">
+        <span class="section-num">13</span>
+        <h2>Pipeline Flow — Step by Step</h2>
+      </div>
+
+      <p>Here is exactly what happens on a daily run at 6:00 AM:</p>
+
+      <div class="steps">
+        <div class="step">
+          <div class="step-num">01</div>
+          <div class="step-content">
+            <div class="step-title">Ingest YouTube <code>ingestion/youtube_api_ingest.py</code></div>
+            <ol>
+              <li>Read <code>last_processed_at</code> from <code>pipeline_control</code></li>
+              <li>Authenticate with YouTube Data API using API key</li>
+              <li>Call <code>channels.list</code> for configured channel IDs</li>
+              <li>Call <code>videos.list</code> with <code>publishedAfter = last_processed_at</code></li>
+              <li>Serialize each response as a JSON string and return with metadata</li>
+            </ol>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">02</div>
+          <div class="step-content">
+            <div class="step-title">Ingest Reddit <code>ingestion/reddit_api_ingest.py</code></div>
+            <ol>
+              <li>Authenticate with Reddit API via PRAW (OAuth2)</li>
+              <li>For each configured subreddit, call <code>.top(time_filter='day')</code></li>
+              <li>Extract all fields including nested <code>awards</code> array</li>
+              <li>Serialize as JSON string and return with metadata</li>
+            </ol>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">03</div>
+          <div class="step-content">
+            <div class="step-title">Bronze Load <code>bronze/raw_loader.py</code></div>
+            <ol>
+              <li>Create Spark DataFrame from raw records list</li>
+              <li>Add metadata: <code>source</code>, <code>ingestion_timestamp</code>, <code>ingestion_date</code></li>
+              <li>Write to Bronze Delta using APPEND mode, partitioned by <code>ingestion_date</code></li>
+            </ol>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">04</div>
+          <div class="step-content">
+            <div class="step-title">Data Quality <code>quality/dq_checker.py</code></div>
+            <ol>
+              <li>Read today's Bronze partition for each source</li>
+              <li>Run null, duplicate, schema, and freshness checks</li>
+              <li>Write all results to <code>quality_metrics</code> Delta table</li>
+              <li>If any CRITICAL check fails → raise exception → Job stops → retry → alert</li>
+            </ol>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">05</div>
+          <div class="step-content">
+            <div class="step-title">Silver Transform YouTube <code>silver/youtube_transform.py</code></div>
+            <ol>
+              <li>Parse <code>raw_payload</code> JSON using <code>from_json()</code> with defined schema</li>
+              <li>Flatten: <code>snippet.title</code> → <code>title</code>, <code>statistics.viewCount</code> → <code>view_count</code></li>
+              <li>Cast types, standardize timestamps to UTC, deduplicate</li>
+              <li>Add derived columns: <code>engagement_rate</code>, <code>post_age_hours</code></li>
+              <li>Write to Silver using <code>INSERT OVERWRITE</code> for today's partition</li>
+            </ol>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">06</div>
+          <div class="step-content">
+            <div class="step-title">Silver Transform Reddit <code>silver/reddit_transform.py</code></div>
+            <ol>
+              <li>Flatten nested <code>awards</code> array using <code>explode()</code> then <code>groupBy</code> + <code>sum</code></li>
+              <li>Convert <code>created_utc</code> (Unix) to proper timestamp</li>
+              <li>Deduplicate by <code>post_id</code>, add <code>engagement_score</code> and <code>trending_rank</code></li>
+            </ol>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">07</div>
+          <div class="step-content">
+            <div class="step-title">Gold Dimensions <code>gold/dim_*.py</code></div>
+            <ol>
+              <li>Run SCD Type 2 logic for <code>dim_channel</code> (expire old rows, insert new)</li>
+              <li>Run SCD Type 1 logic for <code>dim_subreddit</code> (upsert)</li>
+              <li>Update <code>dim_topic</code> with new topics found in tags/flairs</li>
+            </ol>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">08</div>
+          <div class="step-content">
+            <div class="step-title">Gold Facts <code>gold/fact_*.py</code></div>
+            <ol>
+              <li>Join Silver video data with dim tables to resolve surrogate keys</li>
+              <li>Calculate window function metrics: <code>view_growth_1d</code>, <code>view_growth_7d</code></li>
+              <li>MERGE into <code>fact_video_performance</code> on <code>(video_sk, snapshot_date)</code></li>
+            </ol>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">09</div>
+          <div class="step-content">
+            <div class="step-title">Update Watermark <code>orchestration/pipeline_control.py</code></div>
+            <ol>
+              <li>Set <code>last_processed_at = current_timestamp()</code></li>
+              <li>Set <code>last_run_status = SUCCESS</code></li>
+              <li>Log pipeline run summary</li>
+            </ol>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 14 PYSPARK -->
+    <section class="section" id="pyspark">
+      <div class="section-header">
+        <span class="section-num">14</span>
+        <h2>Key PySpark Concepts Used</h2>
+      </div>
+
+      <h3>Window Functions</h3>
+      <p>Used to compute rankings and rolling metrics without collapsing rows into aggregations.</p>
+      <div class="code-block">
+        <span class="code-lang">python</span>
+        <pre><code>from pyspark.sql import Window
+from pyspark.sql.functions import rank, lag, col
+
+# Rank videos by views within each channel
+window_spec = Window.partitionBy("channel_id").orderBy(col("view_count").desc())
+df = df.withColumn("rank_in_channel", rank().over(window_spec))
+
+# Calculate 1-day view growth
+window_time = Window.partitionBy("video_id").orderBy("snapshot_date")
+df = df.withColumn("view_growth_1d",
+    col("view_count") - lag("view_count", 1).over(window_time))</code></pre>
+      </div>
+
+      <h3>Explode — Flattening Nested Arrays</h3>
+      <p>Used to flatten Reddit's nested <code>awards</code> array into individual rows, then aggregate back.</p>
+      <div class="code-block">
+        <span class="code-lang">python</span>
+        <pre><code>from pyspark.sql.functions import explode, col, sum
+
+# awards = [{"name": "Gold", "count": 2}, {"name": "Silver", "count": 5}]
+df_exploded = df.withColumn("award", explode(col("awards")))
+df_exploded = df_exploded.withColumn("award_name", col("award.name")) \
+                         .withColumn("award_count", col("award.count"))
+
+# Aggregate back to one row per post
+df_awards = df_exploded.groupBy("post_id") \
+    .agg(sum("award_count").alias("total_awards"))</code></pre>
+      </div>
+
+      <h3>Aggregations</h3>
+      <div class="code-block">
+        <span class="code-lang">python</span>
+        <pre><code>from pyspark.sql.functions import avg, count, sum
+
+# Trending subreddits by average daily upvotes
+trending = silver_reddit.groupBy("subreddit", "snapshot_date") \
+    .agg(
+        avg("upvote_count").alias("avg_upvotes"),
+        count("post_id").alias("post_count"),
+        sum("comment_count").alias("total_comments")
+    ) \
+    .orderBy(col("avg_upvotes").desc())</code></pre>
+      </div>
+
+      <h3>Delta MERGE (Upsert)</h3>
+      <div class="code-block">
+        <span class="code-lang">python</span>
+        <pre><code>from delta.tables import DeltaTable
+
+delta_table = DeltaTable.forPath(spark, gold_path)
+
+delta_table.alias("target").merge(
+    new_data.alias("source"),
+    "target.video_sk = source.video_sk AND target.snapshot_date = source.snapshot_date"
+).whenMatchedUpdateAll() \
+ .whenNotMatchedInsertAll() \
+ .execute()</code></pre>
+      </div>
+    </section>
+
+    <!-- 15 ANALYTICS QUERIES -->
+    <section class="section" id="queries">
+      <div class="section-header">
+        <span class="section-num">15</span>
+        <h2>Analytics Queries (Gold Layer)</h2>
+      </div>
+
+      <div class="code-block">
+        <span class="code-lang">sql — top 10 most engaging YouTube videos this week</span>
+        <pre><code>SELECT
+    c.channel_name,
+    v.title,
+    f.view_count,
+    f.engagement_rate,
+    d.full_date
+FROM fact_video_performance f
+JOIN dim_channel c ON f.channel_sk = c.channel_sk AND c.is_current = TRUE
+JOIN dim_date d ON f.date_sk = d.date_sk
+WHERE d.week_of_year = WEEKOFYEAR(CURRENT_DATE())
+ORDER BY f.engagement_rate DESC
+LIMIT 10;</code></pre>
+      </div>
+
+      <div class="code-block">
+        <span class="code-lang">sql — trending subreddits: week-over-week upvote growth</span>
+        <pre><code>SELECT
+    s.subreddit_name,
+    SUM(CASE WHEN d.week_of_year = WEEKOFYEAR(CURRENT_DATE())
+             THEN f.upvote_count ELSE 0 END) as this_week,
+    SUM(CASE WHEN d.week_of_year = WEEKOFYEAR(CURRENT_DATE()) - 1
+             THEN f.upvote_count ELSE 0 END) as last_week,
+    ROUND((this_week - last_week) / last_week * 100, 2) as growth_pct
+FROM fact_post_engagement f
+JOIN dim_subreddit s ON f.subreddit_sk = s.subreddit_sk
+JOIN dim_date d ON f.date_sk = d.date_sk
+GROUP BY s.subreddit_name
+ORDER BY growth_pct DESC;</code></pre>
+      </div>
+
+      <div class="code-block">
+        <span class="code-lang">sql — cross-platform topic popularity</span>
+        <pre><code>SELECT
+    t.topic_name,
+    SUM(fv.view_count) as total_yt_views,
+    SUM(fp.upvote_count) as total_reddit_upvotes
+FROM dim_topic t
+LEFT JOIN fact_video_performance fv ON fv.topic_sk = t.topic_sk
+LEFT JOIN fact_post_engagement fp ON fp.topic_sk = t.topic_sk
+GROUP BY t.topic_name
+ORDER BY total_yt_views DESC;</code></pre>
+      </div>
+    </section>
+
+    <!-- 16 HOW TO RUN -->
+    <section class="section" id="howtorun">
+      <div class="section-header">
+        <span class="section-num">16</span>
+        <h2>How to Run This Project</h2>
+      </div>
+
+      <h3>Prerequisites</h3>
+      <ul>
+        <li>Python 3.9+</li>
+        <li>Databricks account (Community Edition is free)</li>
+        <li>AWS account with S3 bucket</li>
+        <li>Google Cloud account (for YouTube API key)</li>
+        <li>Reddit account (for API credentials)</li>
+      </ul>
+
+      <div class="code-block">
+        <span class="code-lang">bash — setup</span>
+        <pre><code># Clone the repo
+git clone https://github.com/Shamanthkrishna/social-analytics-lakehouse.git
+cd social-analytics-lakehouse
+
+# Install dependencies
+pip install -r requirements.txt
+
+# Set up credentials
+cp config/.env.example config/.env
+# Edit .env with your API keys</code></pre>
+      </div>
+
+      <div class="code-block">
+        <span class="code-lang">.env — environment variables</span>
+        <pre><code>YOUTUBE_API_KEY=your_key_here
+REDDIT_CLIENT_ID=your_client_id
+REDDIT_CLIENT_SECRET=your_secret
+REDDIT_USER_AGENT=social-analytics-bot/1.0
+AWS_ACCESS_KEY_ID=your_key
+AWS_SECRET_ACCESS_KEY=your_secret
+S3_BUCKET=social-analytics-lakehouse
+DATABRICKS_HOST=https://your-workspace.azuredatabricks.net
+DATABRICKS_TOKEN=your_token</code></pre>
+      </div>
+
+      <div class="code-block">
+        <span class="code-lang">bash — running locally</span>
+        <pre><code># Test API ingestion
+python ingestion/youtube_api_ingest.py --date 2024-01-15
+
+# Run DQ checks on a Bronze table
+python quality/dq_checker.py --table raw_youtube_videos --date 2024-01-15
+
+# Run full pipeline for a specific date
+python orchestration/pipeline_runner.py --run_date 2024-01-15</code></pre>
+      </div>
+
+      <h3>Running on Databricks</h3>
+      <ol>
+        <li>Upload notebooks from <code>/notebooks</code> to your Databricks workspace</li>
+        <li>Create a cluster (DBR 13.3 LTS, single node for dev)</li>
+        <li>Mount S3 bucket to DBFS</li>
+        <li>Create a Job with the DAG structure from Section 11</li>
+        <li>Set schedule to <code>0 6 * * *</code></li>
+      </ol>
+    </section>
+
+    <!-- 17 INTERVIEW QUESTIONS -->
+    <section class="section" id="interview">
+      <div class="section-header">
+        <span class="section-num">17</span>
+        <h2>Interview Questions This Project Covers</h2>
+      </div>
+
+      <div class="interview-group">
+        <h3>Architecture</h3>
+        <ul class="q-list">
+          <li>"Why did you choose Medallion Architecture over a two-layer approach?"</li>
+          <li>"How would you handle a schema change in the YouTube API response?"</li>
+          <li>"What happens if the pipeline fails halfway through Silver processing?"</li>
+        </ul>
+      </div>
+
+      <div class="interview-group">
+        <h3>PySpark</h3>
+        <ul class="q-list">
+          <li>"Explain how you used window functions in this project."</li>
+          <li>"How did you handle nested JSON from the Reddit API?"</li>
+          <li>"What's the difference between cache() and persist() in Spark?"</li>
+        </ul>
+      </div>
+
+      <div class="interview-group">
+        <h3>Delta Lake</h3>
+        <ul class="q-list">
+          <li>"What is ACID compliance and why does Delta Lake provide it?"</li>
+          <li>"How does Delta's time travel feature work?"</li>
+          <li>"What is Z-ordering and when did you use it?"</li>
+        </ul>
+      </div>
+
+      <div class="interview-group">
+        <h3>Data Modeling</h3>
+        <ul class="q-list">
+          <li>"Why Star Schema over 3NF in the Gold layer?"</li>
+          <li>"Explain the difference between SCD Type 1 and Type 2 with an example from your project."</li>
+          <li>"What's a surrogate key and why use it instead of the natural key?"</li>
+        </ul>
+      </div>
+
+      <div class="interview-group">
+        <h3>Data Quality</h3>
+        <ul class="q-list">
+          <li>"How do you ensure your pipeline doesn't load duplicate data?"</li>
+          <li>"What checks do you run before promoting data from Bronze to Silver?"</li>
+          <li>"How would you alert on pipeline failure?"</li>
+        </ul>
+      </div>
+
+      <div class="interview-group">
+        <h3>Incremental Processing</h3>
+        <ul class="q-list">
+          <li>"What is idempotency and how did you achieve it?"</li>
+          <li>"Explain your watermarking approach."</li>
+          <li>"How do you handle late-arriving data?"</li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- 18 GLOSSARY -->
+    <section class="section" id="glossary">
+      <div class="section-header">
+        <span class="section-num">18</span>
+        <h2>Glossary</h2>
+      </div>
+
+      <div class="glossary-grid">
+        <div class="glossary-item">
+          <span class="glossary-term">Medallion Architecture</span>
+          <span class="glossary-def">Bronze/Silver/Gold layered data lake pattern for progressively improving data quality.</span>
+        </div>
+        <div class="glossary-item">
+          <span class="glossary-term">Delta Lake</span>
+          <span class="glossary-def">Storage layer adding ACID transactions and versioning on top of Parquet files.</span>
+        </div>
+        <div class="glossary-item">
+          <span class="glossary-term">ACID</span>
+          <span class="glossary-def">Atomicity, Consistency, Isolation, Durability — database reliability properties.</span>
+        </div>
+        <div class="glossary-item">
+          <span class="glossary-term">Idempotency</span>
+          <span class="glossary-def">Running an operation multiple times produces the same result as running it once.</span>
+        </div>
+        <div class="glossary-item">
+          <span class="glossary-term">Watermark</span>
+          <span class="glossary-def">A checkpoint storing the last successfully processed timestamp for incremental loads.</span>
+        </div>
+        <div class="glossary-item">
+          <span class="glossary-term">SCD (Slowly Changing Dimension)</span>
+          <span class="glossary-def">Dimension table pattern for managing historical changes to attribute values.</span>
+        </div>
+        <div class="glossary-item">
+          <span class="glossary-term">Star Schema</span>
+          <span class="glossary-def">Data warehouse design: central fact table surrounded by dimension tables.</span>
+        </div>
+        <div class="glossary-item">
+          <span class="glossary-term">Surrogate Key</span>
+          <span class="glossary-def">System-generated integer PK, independent of source system natural keys.</span>
+        </div>
+        <div class="glossary-item">
+          <span class="glossary-term">Natural Key</span>
+          <span class="glossary-def">The real-world ID from the source system (e.g., YouTube video_id).</span>
+        </div>
+        <div class="glossary-item">
+          <span class="glossary-term">Upsert / MERGE</span>
+          <span class="glossary-def">Insert new rows and update existing rows in a single atomic operation.</span>
+        </div>
+        <div class="glossary-item">
+          <span class="glossary-term">Partition</span>
+          <span class="glossary-def">Physical division of a Delta table by a column value (e.g., by date) for faster reads.</span>
+        </div>
+        <div class="glossary-item">
+          <span class="glossary-term">Z-Ordering</span>
+          <span class="glossary-def">Databricks optimization that co-locates related data in the same files for faster queries.</span>
+        </div>
+        <div class="glossary-item">
+          <span class="glossary-term">DAG</span>
+          <span class="glossary-def">Directed Acyclic Graph — a pipeline where tasks have dependencies with no cycles.</span>
+        </div>
+        <div class="glossary-item">
+          <span class="glossary-term">ETL vs ELT</span>
+          <span class="glossary-def">ETL: transform before loading. ELT: load raw first, then transform in-place (modern approach).</span>
+        </div>
+        <div class="glossary-item">
+          <span class="glossary-term">Schema-on-read</span>
+          <span class="glossary-def">Schema applied when reading data, not enforced on write. Used in Bronze layer.</span>
+        </div>
+        <div class="glossary-item">
+          <span class="glossary-term">PRAW</span>
+          <span class="glossary-def">Python Reddit API Wrapper — the official Python SDK for Reddit's REST API.</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- FOOTER -->
+    <footer>
+      <span class="name">Shamanth Krishna</span>
+      <div class="links">
+        <a href="https://github.com/Shamanthkrishna" target="_blank">GitHub</a>
+        <a href="https://linkedin.com/in/shamanthkrishna" target="_blank">LinkedIn</a>
+        <a href="mailto:shamanthkrishna0@gmail.com">Email</a>
+      </div>
+    </footer>
+
+  </main>
+</div>
+
+<script>
+  // Active sidebar link on scroll
+  const sections = document.querySelectorAll('.section, .hero');
+  const navLinks = document.querySelectorAll('.sidebar nav a');
+
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        navLinks.forEach(link => link.classList.remove('active'));
+        const id = entry.target.id;
+        const active = document.querySelector(`.sidebar nav a[href="#${id}"]`);
+        if (active) active.classList.add('active');
+      }
+    });
+  }, { threshold: 0.3 });
+
+  sections.forEach(s => observer.observe(s));
+</script>
+
+</body>
+</html>
